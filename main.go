@@ -95,6 +95,8 @@ func (f *cropField) CreateWidget() *gtk.Box {
 				button.SetName("cropField-air")
 			} else if f.Cells[row*f.Height+col].What == "block" {
 				button.SetName("cropField-block")
+			} else if f.Cells[row*f.Height+col].What == "water" {
+				button.SetName("cropField-water")
 			} else {
 				button.SetName("cropField-crop")
 			}
@@ -109,6 +111,9 @@ func (f *cropField) CreateWidget() *gtk.Box {
 					button.SetName("cropField-block")
 					f.Cells[torow*f.Height+tocol].What = "block"
 				} else if name == "cropField-block" {
+					button.SetName("cropField-water")
+					f.Cells[torow*f.Height+tocol].What = "water"
+				} else if name == "cropField-water" {
 					button.SetName("cropField-air")
 					f.Cells[torow*f.Height+tocol].What = "air"
 				}
@@ -286,6 +291,11 @@ func main() {
 	}
 	#cropField-block {
 		background-color: black;
+		background-image: none;
+		color: white;
+	}
+	#cropField-water {
+		background-color: blue;
 		background-image: none;
 		color: white;
 	}`))
