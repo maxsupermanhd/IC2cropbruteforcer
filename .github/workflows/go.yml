@@ -13,22 +13,36 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install deps
+      run: sudo apt install libgtk-3-dev libcairo2-dev libglib2.0-dev
+
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.18
 
     - name: Build Linux binary
-      run: go build -o lin-amd64-IC2cropbruteforcer
+      run: GOOS=linux GOARCH=amd64 go build -o lin-amd64-IC2cropbruteforcer
+
     - name: Upload Linux artifacts
       uses: actions/upload-artifact@v2
       with:
         name: Linux binary
         path: lin-amd64-IC2cropbruteforcer
+  
   build-win:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
     - uses: actions/checkout@v3
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: mingw-w64-x86_64-gtk3
 
     - name: Set up Go
       uses: actions/setup-go@v3
@@ -36,7 +50,8 @@ jobs:
         go-version: 1.18
 
     - name: Build Windows binary
-      run: GOOS=windows go build -o win-amd64-IC2cropbruteforcer
+      run: GOOS=windows GOARCH=amd64 go build -o win-amd64-IC2cropbruteforcer
+
     - name: Upload Windows artifacts
       uses: actions/upload-artifact@v2
       with:
