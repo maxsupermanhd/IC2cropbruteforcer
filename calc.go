@@ -2,6 +2,10 @@ package main
 
 import (
 	"log"
+	"math"
+	"time"
+
+	rng "github.com/leesper/go_rng"
 )
 
 func calcWithRNG(rng int, stats crop, params cropEnvironment) int {
@@ -151,6 +155,21 @@ func calcFieldGrowthTime(field *cropField) (map[float64]int, int) {
 		}
 	}
 	return ret, c
+}
+
+func calcDrop(c crop) float64 {
+	grng := rng.NewGaussianGenerator(time.Now().UnixNano())
+	urng := rng.NewUniformGenerator(time.Now().UnixNano())
+	chance := c.DropGainChance * math.Pow(1.03, float64(c.Gain))
+	dropCount := math.Max(0, math.Round(grng.Gaussian(0.0, 1.0)*chance*0.6827+chance))
+	ret := 0.0
+	for i := 0; i < int(dropCount); i++ {
+		ret += c.AverageDropGain // 1.8 0.6827
+		if urng.Int32n(100) <= int32(c.Gain) {
+			ret++
+		}
+	}
+	return ret
 }
 
 // func simulateFiledGrowth(field *cropField) int {

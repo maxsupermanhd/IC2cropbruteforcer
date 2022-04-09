@@ -10,14 +10,16 @@ import (
 )
 
 type crop struct {
-	Humidity       float64
-	Nutrients      float64
-	Air            float64
-	Growth         int
-	Gain           int
-	Resist         int
-	Tier           int
-	GrowthDuration int
+	Humidity        float64
+	Nutrients       float64
+	Air             float64
+	Growth          int
+	Gain            int
+	Resist          int
+	Tier            int
+	GrowthDuration  int
+	DropGainChance  float64
+	AverageDropGain float64
 }
 
 type cropEnvironment struct {
@@ -176,10 +178,10 @@ func main() {
 
 	cropParams := noerr(gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 3))
 	cropParams.Add(noerr(gtk.LabelNew("Crop parameters:")))
-	cropParams.Add(floatSelectorWithLabel("Humidity modifier", 0, 5, 0.1, func(newval float64) {
+	cropParams.Add(floatSelectorWithLabel("Humidity modifier", 0, 5, 0.001, func(newval float64) {
 		field.CropStat.Humidity = newval
 	}))
-	cropParams.Add(floatSelectorWithLabel("Nutrients modifier", 0, 5, 0.1, func(newval float64) {
+	cropParams.Add(floatSelectorWithLabel("Nutrients modifier", 0, 5, 0.001, func(newval float64) {
 		field.CropStat.Nutrients = newval
 	}))
 	cropParams.Add(floatSelectorWithLabel("Air modifier", 0, 5, 0.1, func(newval float64) {
@@ -199,6 +201,12 @@ func main() {
 	}))
 	cropParams.Add(intSelectorWithLabel("Growth duration", 0, 200000, 1, func(newval int) {
 		field.CropStat.GrowthDuration = newval
+	}))
+	cropParams.Add(floatSelectorWithLabel("Drop gain chance", 0, 99, 0.0001, func(newval float64) {
+		field.CropStat.DropGainChance = newval
+	}))
+	cropParams.Add(floatSelectorWithLabel("Drop count", 0, 99, 0.0001, func(newval float64) {
+		field.CropStat.AverageDropGain = newval
 	}))
 	row1.Add(cropParams)
 	calcResults := noerr(gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 3))
@@ -223,8 +231,21 @@ func main() {
 		report := fmt.Sprintf("Average growth per random tick: %.2f\n", calcFieldAverageGrouth(field))
 		times, total := calcFieldGrowthTime(field)
 		for k, v := range times {
-			report += fmt.Sprintf("%d/%d will grow in %.2f random ticks\n", v, total, k)
+			report += fmt.Sprintf("%d/%d will grow in %.2f random ticks (%.1f seconds)\n", v, total, k, k*68.27)
 		}
+		dropsum := 0.0
+		dropcount := 15000.0
+		for sample := 0.0; sample < dropcount; sample++ {
+			dropsum += calcDrop(field.CropStat)
+		}
+		cropcount := 0.0
+		for _, v := range field.Cells {
+			if v.What == "crop" {
+				cropcount++
+			}
+		}
+		report += fmt.Sprintf("Average drop from one crop: %.3f (%d samples)\n", dropsum/dropcount, int(dropcount))
+		report += fmt.Sprintf("Average drop from field: %.3f (%d crops)\n", (dropsum/dropcount)*cropcount, int(cropcount))
 		calcAvgPoints.SetText(report)
 	})
 	cGrid.Attach(cTrigger, 6, 6, 1, 1)
