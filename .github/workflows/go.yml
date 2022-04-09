@@ -1,0 +1,44 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build-lin:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: Build Linux binary
+      run: go build -o lin-amd64-IC2cropbruteforcer
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Linux binary
+        path: lin-amd64-IC2cropbruteforcer
+  build-win:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: Build Windows binary
+      run: GOOS=windows go build -o win-amd64-IC2cropbruteforcer
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Windows binary
+        path: win-amd64-IC2cropbruteforcer
