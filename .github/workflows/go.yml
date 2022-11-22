@@ -41,6 +41,9 @@ jobs:
         msystem: MINGW64
         update: true
         install: git mingw-w64-x86_64-gtk3 mingw-w64-x86_64-go mingw-w64-x86_64-pkg-config mingw-w64-x86_64-gcc
+    
+    - name: Fixes for pkg-config
+      run: sed -i -e 's/-Wl,-luuid/-luuid/g' /mingw64/lib/pkgconfig/gdk-3.0.pc
 
     - uses: actions/checkout@v3
 
